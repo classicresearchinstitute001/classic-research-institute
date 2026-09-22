@@ -69,7 +69,7 @@ def save_payments(data):
 
 @app.route('/')
 def serve_index():
-    return send_from_directory('.', 'FINAL-WITH-WEBSITE-DEV.html')
+    return send_from_directory('.', 'index.html')
 
 @app.route('/admin')
 def serve_admin():
