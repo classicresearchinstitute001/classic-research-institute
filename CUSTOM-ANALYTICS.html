@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Client Activity Analytics - Classic Research Institute</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f172a;--gold:#f59e0b;--green:#16a34a;--bg:#f8fafc;--line:#e2e8f0;--muted:#64748b;--blue:#3b82f6;--red:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:var(--bg);color:var(--navy)}
+.wrap{max-width:1300px;margin:0 auto;padding:14px}
+header{background:white;border-bottom:1px solid var(--line);padding:10px 0;position:sticky;top:0;z-index:20}
+.nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.logo{font-weight:800;font-size:18px;display:flex;gap:8px;align-items:center}
+.logo .mark{width:28px;height:28px;background:var(--navy);color:var(--gold);display:grid;place-items:center;border-radius:7px}
+.live-dot{width:10px;height:10px;background:#22c55e;border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.btn{padding:7px 12px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-size:11px;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.btn-dark{background:var(--navy);color:white}.btn-ghost{background:white;border:1px solid var(--line)}.btn-green{background:var(--green);color:white}.btn-wa{background:#25D366;color:white}
+.card{background:white;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.grid{display:grid;gap:12px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+.stat b{font-size:26px;display:block;line-height:1}.stat span{font-size:10px;color:var(--muted)}
+.badge{padding:3px 8px;border-radius:100px;font-size:10px;font-weight:700}
+.badge-live{background:#dcfce7;color:#166534}.badge-new{background:#dbeafe;color:#1e40af}.badge-action{background:#fef3c7;color:#92400e}
+#loginScreen{position:fixed;inset:0;background:rgba(15,23,42,.92);backdrop-filter:blur(10px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:white;border-radius:16px;padding:24px;max-width:360px;width:100%;text-align:center}
+.login-box input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin:12px 0;font-size:14px}
+.activity-item{display:flex;gap:10px;padding:10px;border-radius:10px;border:1px solid var(--line);background:white;margin-bottom:6px;animation:slideIn .3s}
+@keyframes slideIn{from{transform:translateX(-10px);opacity:0}to{transform:translateX(0);opacity:1}}
+.activity-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.activity-icon.view{background:#eff6ff;border:1px solid #bfdbfe}
+.activity-icon.click{background:#fef3c7;border:1px solid #fde68a}
+.activity-icon.submit{background:#f0fdf4;border:1px solid #bbf7d0}
+.activity-icon.chat{background:#f5f3ff;border:1px solid #ddd6fe}
+.activity-icon.whatsapp{background:#dcfce7;border:1px solid #bbf7d0}
+.visitor-card{border:1px solid var(--line);border-radius:10px;padding:10px;background:white;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.visitor-card.active{border-color:var(--green);background:#f0fdf4}
+.journey{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.journey-step{font-size:9px;padding:2px 6px;background:var(--bg);border:1px solid var(--line);border-radius:100px}
+.journey-step.active{background:var(--navy);color:white}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th,td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--bg);font-weight:700;font-size:10px;text-transform:uppercase}
+@media(max-width:900px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.g4,.g3,.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+<div class="login-box">
+<div style="font-size:32px">🔒</div>
+<h2 style="font-size:20px;margin:8px 0">Client Analytics - Admin Only</h2>
+<p style="font-size:12px;color:var(--muted)">Track everything clients do on website LIVE</p>
+<input type="password" id="adminPass" placeholder="Password" onkeypress="if(event.key==='Enter')checkLogin()">
+<button onclick="checkLogin()" class="btn btn-dark" style="width:100%;justify-content:center">🔓 View Client Activity</button>
+<p style="font-size:10px;color:var(--muted);margin-top:8px">Password: <code>JESUSISLORD</code></p>
+<p id="loginError" style="color:#ef4444;font-size:12px;margin-top:8px;display:none">Wrong password!</p>
+</div>
+</div>
+
+<header>
+<div class="wrap nav">
+<div class="logo"><span class="mark">👁️</span> Client Activity Analytics <span class="live-dot"></span> <span class="badge badge-live">LIVE TRACKING</span></div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<span style="font-size:11px;color:var(--muted)" id="lastUpdate">Live tracking everything clients do...</span>
+<a href="/" class="btn btn-ghost">🌐 Website</a>
+<a href="/admin" class="btn btn-ghost">📋 Admin (Orders)</a>
+<button onclick="loadAnalytics()" class="btn btn-dark">🔄 Refresh</button>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+
+<div class="grid g4" style="margin-top:14px">
+<div class="card stat">
+<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--muted)">Total Visitors</span><span>👥</span></div>
+<b id="totalVisitors">0</b>
+<span>People who visited site</span>
+</div>
+<div class="card stat" style="border:2px solid var(--green);background:#f0fdf4">
+<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:#166534;font-weight:700">Online Now</span><span>🟢</span></div>
+<b id="onlineNow" style="color:var(--green)">0</b>
+<span style="color:#166534">Browsing right now (last 5 mins)</span>
+</div>
+<div class="card stat">
+<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--muted)">Actions Today</span><span>⚡</span></div>
+<b id="actionsToday">0</b>
+<span>Clicks, views, chats</span>
+</div>
+<div class="card stat">
+<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--muted)">Submissions</span><span>📝</span></div>
+<b id="totalSubmissions">0</b>
+<span>Orders received</span>
+</div>
+</div>
+
+<div class="grid g2">
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">🔴 LIVE Activity Feed - Everything Clients Do RIGHT NOW (Auto-updates every 3s)</h3>
+<div id="liveFeed" style="max-height:500px;overflow:auto;display:grid;gap:6px">
+<div style="text-align:center;color:var(--muted);padding:30px;font-size:12px">
+<div style="font-size:28px">👁️</div>
+Waiting for client activity...<br>
+When someone visits your live website, you will see here instantly:<br>
+"2 mins ago - Someone viewed Pricing - Interested in Project Full Package"<br>
+"1 min ago - Someone clicked WhatsApp button"<br>
+"Just now - Musa submitted project AH-1234"
+</div>
+</div>
+</div>
+
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">🟢 Who Is Online Now - What Are They Doing? (<span id="onlineCount">0</span>)</h3>
+<div id="onlineList" style="max-height:500px;overflow:auto;display:grid;gap:8px">
+<div style="text-align:center;color:var(--muted);padding:30px;font-size:12px">
+No one online now<br>
+Open your main website in another tab to see yourself here as online!
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid g2">
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">🎯 What Services Are Clients Interested In?</h3>
+<div id="serviceInterest" style="display:grid;gap:6px"></div>
+</div>
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">📊 Client Journey Funnel - Where Do They Stop?</h3>
+<div style="background:var(--bg);border-radius:10px;padding:12px;font-size:11px;display:grid;gap:8px">
+<div style="display:flex;justify-content:space-between;align-items:center"><span>1. 👁️ Landed on Website</span><b id="funnel1">0</b></div>
+<div style="height:4px;background:#e2e8f0;border-radius:100px"><div id="bar1" style="height:100%;background:var(--navy);width:100%"></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span>2. 👀 Viewed Services / Pricing</span><b id="funnel2">0</b></div>
+<div style="height:4px;background:#e2e8f0;border-radius:100px"><div id="bar2" style="height:100%;background:var(--gold);width:0%"></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span>3. 📋 Started Filling Form</span><b id="funnel3">0</b></div>
+<div style="height:4px;background:#e2e8f0;border-radius:100px"><div id="bar3" style="height:100%;background:#3b82f6;width:0%"></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span>4. 💬 Clicked WhatsApp / Live Chat</span><b id="funnel4">0</b></div>
+<div style="height:4px;background:#e2e8f0;border-radius:100px"><div id="bar4" style="height:100%;background:#25D366;width:0%"></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span>5. 📝 Submitted Order (Got Order ID)</span><b id="funnel5" style="color:var(--green)">0</b></div>
+<div style="height:6px;background:#e2e8f0;border-radius:100px"><div id="bar5" style="height:100%;background:var(--green);width:0%"></div></div>
+<p style="font-size:10px;color:var(--muted);margin-top:6px">This shows where clients drop off. If many view but few submit, you need to make form easier or price clearer.</p>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">👥 All Visitors - Their Full Journey (Last 50)</h3>
+<div style="overflow:auto">
+<table>
+<thead><tr><th>Time</th><th>Visitor</th><th>Device</th><th>Current Page</th><th>Interest</th><th>Journey</th><th>Order ID</th></tr></thead>
+<tbody id="visitorsTable"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script>
+const ADMIN_PASSWORD = 'JESUSISLORD';
+function checkLogin(){
+ if(document.getElementById('adminPass').value===ADMIN_PASSWORD){
+  document.getElementById('loginScreen').style.display='none';
+  localStorage.setItem('adminLoggedIn','true');
+  loadAnalytics();
+ } else {
+  document.getElementById('loginError').style.display='block';
+ }
+}
+if(localStorage.getItem('adminLoggedIn')==='true'){
+ document.getElementById('loginScreen').style.display='none';
+}
+
+function formatTime(iso){
+ try {
+  const d = new Date(iso);
+  return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+ } catch { return iso; }
+}
+
+function getActionIcon(action){
+ if(action.includes('view')) return {icon:'👁️', cls:'view', text:'Viewed'};
+ if(action.includes('click')) return {icon:'👆', cls:'click', text:'Clicked'};
+ if(action.includes('submission')) return {icon:'📝', cls:'submit', text:'Submitted'};
+ if(action.includes('chat')) return {icon:'💬', cls:'chat', text:'Chat'};
+ if(action.includes('whatsapp')) return {icon:'💚', cls:'whatsapp', text:'WhatsApp'};
+ if(action.includes('form')) return {icon:'📋', cls:'click', text:'Form'};
+ return {icon:'⚡', cls:'view', text:action};
+}
+
+async function loadAnalytics(){
+ try {
+  const res = await fetch('/api/analytics');
+  const text = await res.text();
+  let data;
+  try {
+   data = JSON.parse(text);
+  } catch {
+   // Demo data if backend not reachable
+   data = {
+    totalViews: 0,
+    uniqueVisitors: 0,
+    onlineNow: 0,
+    totalSubmissions: 0,
+    recentVisitors: [],
+    activeNow: [],
+    allVisits: [],
+    topServices: []
+   };
+   // Create demo activity from localStorage if available
+   const localVisits = JSON.parse(localStorage.getItem('ah_analytics_demo')||'[]');
+   if(localVisits.length>0){
+    data.allVisits = localVisits;
+    data.totalViews = localVisits.length;
+    data.uniqueVisitors = new Set(localVisits.map(v=>v.sessionId)).size;
+   }
+  }
+  
+  document.getElementById('totalVisitors').textContent = data.uniqueVisitors || data.totalViews || 0;
+  document.getElementById('onlineNow').textContent = data.onlineNow || 0;
+  document.getElementById('actionsToday').textContent = data.totalViews || 0;
+  document.getElementById('totalSubmissions').textContent = data.totalSubmissions || 0;
+  
+  // Funnel
+  const allVisits = data.allVisits || [];
+  const views = allVisits.filter(v=>v.action==='view').length;
+  const serviceViews = allVisits.filter(v=>v.action==='section_view' || v.action==='service_click').length;
+  const formViews = allVisits.filter(v=>v.action==='form_view' || v.action==='form_start').length;
+  const whatsappClicks = allVisits.filter(v=>v.action.includes('whatsapp') || v.action.includes('chat')).length;
+  const submissions = allVisits.filter(v=>v.action==='submission').length;
+  
+  document.getElementById('funnel1').textContent = data.totalViews || views;
+  document.getElementById('funnel2').textContent = serviceViews;
+  document.getElementById('funnel3').textContent = formViews;
+  document.getElementById('funnel4').textContent = whatsappClicks;
+  document.getElementById('funnel5').textContent = data.totalSubmissions || submissions;
+  
+  const max = Math.max(1, data.totalViews || views);
+  document.getElementById('bar2').style.width = (serviceViews/max*100)+'%';
+  document.getElementById('bar3').style.width = (formViews/max*100)+'%';
+  document.getElementById('bar4').style.width = (whatsappClicks/max*100)+'%';
+  document.getElementById('bar5').style.width = ((data.totalSubmissions||submissions)/max*100)+'%';
+  
+  // Live Feed - Show everything clients do, newest first, with nice description
+  const feedEl = document.getElementById('liveFeed');
+  const feedData = [...(data.allVisits||[])].reverse().slice(0,30);
+  if(feedData.length===0){
+   feedEl.innerHTML = `<div style="text-align:center;color:var(--muted);padding:30px;font-size:12px">
+    <div style="font-size:28px">👁️</div>
+    No activity yet<br>
+    When client visits your live site, you see here instantly like:<br><br>
+    <div style="text-align:left;background:var(--bg);padding:10px;border-radius:8px;font-size:11px">
+    • 2 mins ago - Someone viewed Pricing - Interested in Project Full Package<br>
+    • 1 min ago - Someone clicked WhatsApp button<br>
+    • Just now - Musa submitted project AH-1234 - Topic: Impact of Social Media
+    </div>
+   </div>`;
+  } else {
+   feedEl.innerHTML = feedData.map(v=>{
+    const act = getActionIcon(v.action);
+    let desc = '';
+    if(v.action==='view') desc = `Viewed ${v.page}`;
+    else if(v.action==='section_view') desc = `Viewed section: ${v.service}`;
+    else if(v.action==='service_click') desc = `Clicked service: ${v.service} - Interested!`;
+    else if(v.action==='form_view') desc = `Opened order form - Wants to submit`;
+    else if(v.action==='form_start') desc = `Started filling form - Service: ${v.service}`;
+    else if(v.action==='whatsapp_click') desc = `Clicked WhatsApp button - Wants to chat!`;
+    else if(v.action==='chat_open') desc = `Opened Live Chat - Wants to talk`;
+    else if(v.action==='submission') desc = `<b>SUBMITTED ORDER ${v.orderId||''} - ${v.service}</b>`;
+    else desc = `${v.action} - ${v.service} - ${v.page}`;
+    
+    const timeAgo = (()=>{try{const diff = (Date.now() - new Date(v.timestamp).getTime())/1000; if(diff<60) return 'Just now'; if(diff<3600) return Math.floor(diff/60)+' mins ago'; return Math.floor(diff/3600)+' hours ago';}catch{return v.time||'';}})();
+    
+    return `<div class="activity-item">
+     <div class="activity-icon ${act.cls}">${act.icon}</div>
+     <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:12px">${desc}</b><span style="font-size:10px;color:var(--muted)">${timeAgo}</span></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">${v.device} • ${v.id} • ${formatTime(v.timestamp)}</div>
+     </div>
+    </div>`;
+   }).join('');
+  }
+  
+  // Online Now
+  const onlineEl = document.getElementById('onlineList');
+  const onlineData = data.activeNow || [];
+  if(onlineData.length===0){
+   onlineEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px">No one online now<br>Open main website in another tab to see yourself as online!</div>';
+  } else {
+   onlineEl.innerHTML = onlineData.map(v=>`
+    <div class="visitor-card active">
+     <div style="flex:1">
+      <div style="display:flex;gap:6px;align-items:center"><b style="font-size:12px">${v.sessionId?.slice(0,8)||v.id}</b><span class="badge badge-live">● LIVE NOW</span><span style="font-size:10px;color:var(--muted)">${formatTime(v.timestamp)}</span></div>
+      <div style="font-size:11px;margin-top:4px">📍 Currently: <b>${v.page}</b> - ${v.service||'Browsing'}</div>
+      <div style="font-size:10px;color:var(--muted)">${v.device} • ${v.id}</div>
+     </div>
+     <div style="font-size:20px">👁️</div>
+    </div>
+   `).join('');
+  }
+  
+  // Service Interest
+  const serviceEl = document.getElementById('serviceInterest');
+  const services = data.topServices || [];
+  if(services.length===0){
+   serviceEl.innerHTML = '<div style="font-size:11px;color:var(--muted)">No service interest yet. When clients click services, you see here which service is hottest!</div>';
+  } else {
+   const maxCount = Math.max(1, ...services.map(s=>s.count));
+   serviceEl.innerHTML = services.map(s=>`
+    <div style="background:white;border:1px solid var(--line);border-radius:10px;padding:10px">
+     <div style="display:flex;justify-content:space-between;font-size:12px"><b>${s.service||'General'}</b><b>${s.count} views</b></div>
+     <div style="height:6px;background:#f1f5f9;border-radius:100px;margin-top:6px;overflow:hidden"><div style="height:100%;background:var(--gold);width:${(s.count/maxCount*100)}%"></div></div>
+    </div>
+   `).join('');
+  }
+  
+  // Visitors Table
+  const tableEl = document.getElementById('visitorsTable');
+  const tableData = [...(data.allVisits||[])].reverse().slice(0,50);
+  tableEl.innerHTML = tableData.map(v=>`
+   <tr>
+    <td>${formatTime(v.timestamp)}<br><span style="font-size:9px;color:var(--muted)">${v.date}</span></td>
+    <td>${v.sessionId?.slice(0,8)||v.id}<br><span style="font-size:9px">${v.device}</span></td>
+    <td>${v.device}</td>
+    <td>${v.page}</td>
+    <td>${v.service||'-'}</td>
+    <td><span class="badge badge-action">${v.action}</span></td>
+    <td>${v.orderId||'-'}</td>
+   </tr>
+  `).join('');
+  
+ } catch(e){
+  console.error(e);
+  document.getElementById('liveFeed').innerHTML = `<div style="padding:20px;background:#fee2e2;color:#991b1b;border-radius:10px;font-size:12px">Error loading analytics: ${e.message}<br><br>For live site https://classicresearchinstitute.netlify.app, analytics needs backend deployed to Render.com or Google Analytics. For testing, open main website in same browser to generate activity.</div>`;
+ }
+}
+
+setInterval(()=>{if(localStorage.getItem('adminLoggedIn')==='true') loadAnalytics();}, 3000);
+if(localStorage.getItem('adminLoggedIn')==='true') loadAnalytics();
+</script>
+</body>
+</html>

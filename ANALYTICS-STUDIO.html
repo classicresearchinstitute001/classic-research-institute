@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analytics Studio - Classic Research Institute</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--navy:#0f172a;--gold:#f59e0b;--green:#16a34a;--bg:#f8fafc;--line:#e2e8f0;--muted:#64748b;--red:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:var(--bg);color:var(--navy)}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+header{background:white;border-bottom:1px solid var(--line);padding:12px 0;position:sticky;top:0;z-index:20}
+.nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.logo{font-weight:800;font-size:18px;display:flex;gap:8px;align-items:center}
+.logo .mark{width:28px;height:28px;background:var(--navy);color:var(--gold);display:grid;place-items:center;border-radius:7px}
+.live-dot{width:10px;height:10px;background:#22c55e;border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.btn{padding:8px 12px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-size:11px;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.btn-dark{background:var(--navy);color:white}.btn-ghost{background:white;border:1px solid var(--line)}
+.card{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+.stat{position:relative;overflow:hidden}
+.stat b{font-size:28px;display:block;line-height:1}.stat span{font-size:11px;color:var(--muted)}
+.stat .trend{font-size:10px;padding:2px 6px;border-radius:100px;font-weight:700;margin-top:4px;display:inline-flex}
+.trend-up{background:#dcfce7;color:#166534}.trend-down{background:#fee2e2;color:#991b1b}
+.chart-wrap{position:relative;height:220px}
+.badge{padding:3px 8px;border-radius:100px;font-size:10px;font-weight:700}
+.badge-live{background:#dcfce7;color:#166534;animation:pulse 2s infinite}
+#loginScreen{position:fixed;inset:0;background:rgba(15,23,42,.9);backdrop-filter:blur(10px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:white;border-radius:16px;padding:24px;max-width:360px;width:100%;text-align:center}
+.login-box input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin:12px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--bg);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot-green{background:var(--green)}.dot-blue{background:#3b82f6}.dot-gold{background:var(--gold)}
+@media(max-width:900px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.g4,.g3,.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+<div class="login-box">
+<div style="font-size:32px">📊</div>
+<h2 style="font-size:20px;margin:8px 0">Analytics Studio</h2>
+<p style="font-size:12px;color:var(--muted)">Enter admin password to view analytics</p>
+<input type="password" id="adminPass" placeholder="Password" onkeypress="if(event.key==='Enter')checkLogin()">
+<button onclick="checkLogin()" class="btn btn-dark" style="width:100%;justify-content:center">🔓 View Analytics</button>
+<p style="font-size:10px;color:var(--muted);margin-top:8px">Password: <code>JESUSISLORD</code></p>
+<p id="loginError" style="color:#ef4444;font-size:12px;margin-top:8px;display:none">Wrong password!</p>
+</div>
+</div>
+
+<header>
+<div class="wrap nav">
+<div class="logo"><span class="mark">📊</span> Analytics Studio <span class="live-dot"></span> <span class="badge badge-live">LIVE</span></div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<span style="font-size:11px;color:var(--muted)" id="lastUpdate">Last update: --</span>
+<a href="/" class="btn btn-ghost">🌐 Website</a>
+<a href="/admin" class="btn btn-ghost">📋 Admin</a>
+<button onclick="loadAnalytics()" class="btn btn-dark">🔄 Refresh</button>
+<button onclick="logout()" class="btn" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca">Logout</button>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+
+<div class="grid g4" style="margin-top:16px">
+<div class="card stat">
+<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--muted)">Total Views</span><span style="font-size:14px">👁️</span></div>
+<b id="totalViews">0</b>
+<span>All time page views</span>
+<div class="trend trend-up" id="viewsTrend">↑ 0% today</div>
+</div>
+<div class="card stat">
+<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--muted)">Unique Visitors</span><span style="font-size:14px">👥</span></div>
+<b id="uniqueVisitors">0</b>
+<span>Different people</span>
+<div class="trend trend-up">🔥 Real people</div>
+</div>
+<div class="card stat" style="border:2px solid var(--green);background:#f0fdf4">
+<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:#166534;font-weight:700">Online Now</span><span style="font-size:14px">🟢</span></div>
+<b id="onlineNow" style="color:var(--green)">0</b>
+<span style="color:#166534">Active last 5 mins</span>
+<div class="trend trend-up" style="background:var(--green);color:white">● LIVE</div>
+</div>
+<div class="card stat">
+<div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--muted)">Submissions</span><span style="font-size:14px">📝</span></div>
+<b id="totalSubmissions">0</b>
+<span>Orders received</span>
+<div class="trend trend-up" id="convRate">0% conversion</div>
+</div>
+</div>
+
+<div class="grid g2">
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">📈 Views Last 7 Days (Like YouTube Studio)</h3>
+<div class="chart-wrap"><canvas id="chart7Days"></canvas></div>
+</div>
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">🕐 Today's Traffic by Hour</h3>
+<div class="chart-wrap"><canvas id="chartHourly"></canvas></div>
+</div>
+</div>
+
+<div class="grid g2">
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">🔥 Top Services People View</h3>
+<div class="chart-wrap" style="height:200px"><canvas id="chartServices"></canvas></div>
+<div id="topServicesList" style="margin-top:10px;display:grid;gap:4px"></div>
+</div>
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">📱 Device & Page Analytics</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div>
+<h4 style="font-size:11px;color:var(--muted);margin-bottom:6px">Device</h4>
+<div id="deviceStats"></div>
+</div>
+<div>
+<h4 style="font-size:11px;color:var(--muted);margin-bottom:6px">Top Pages</h4>
+<div id="pageStats"></div>
+</div>
+</div>
+<div style="margin-top:14px">
+<h4 style="font-size:11px;color:var(--muted);margin-bottom:6px">Conversion Funnel (Like YouTube)</h4>
+<div style="background:var(--bg);border-radius:10px;padding:10px;font-size:11px;display:grid;gap:6px">
+<div style="display:flex;justify-content:space-between"><span>👁️ Viewed Website</span><b id="funnelViews">0</b></div>
+<div style="display:flex;justify-content:space-between"><span>📋 Viewed Order Form</span><b id="funnelForm">0</b></div>
+<div style="display:flex;justify-content:space-between"><span>📝 Submitted (Orders)</span><b id="funnelSubmit" style="color:var(--green)">0</b></div>
+<div style="height:6px;background:#e2e8f0;border-radius:100px;overflow:hidden;margin-top:4px"><div id="funnelBar" style="height:100%;background:var(--green);width:0%"></div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid g2">
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">🟢 Online Now - Active Users (Last 5 Mins) - <span id="onlineCount">0</span> people</h3>
+<div id="activeNowList" style="max-height:300px;overflow:auto;display:grid;gap:6px">
+<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px">No one online now<br>When someone visits your live site, they appear here instantly!</div>
+</div>
+</div>
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">👥 Recent Visitors - Last 20 (Like YouTube Realtime)</h3>
+<div style="max-height:300px;overflow:auto">
+<table>
+<thead><tr><th>Time</th><th>Page</th><th>Service Interest</th><th>Device</th></tr></thead>
+<tbody id="recentVisitors"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h3 style="font-size:13px;margin-bottom:10px">📊 All Recent Activity - Last 100 Views</h3>
+<div style="max-height:400px;overflow:auto">
+<table>
+<thead><tr><th>Time</th><th>Session</th><th>Page</th><th>Action</th><th>Service</th><th>Device</th><th>Order ID</th></tr></thead>
+<tbody id="allVisits"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script>
+const ADMIN_PASSWORD = 'JESUSISLORD';
+function checkLogin(){
+ if(document.getElementById('adminPass').value===ADMIN_PASSWORD){
+  document.getElementById('loginScreen').style.display='none';
+  localStorage.setItem('adminLoggedIn','true');
+  loadAnalytics();
+ } else {
+  document.getElementById('loginError').style.display='block';
+ }
+}
+function logout(){localStorage.removeItem('adminLoggedIn'); location.reload();}
+if(localStorage.getItem('adminLoggedIn')==='true'){
+ document.getElementById('loginScreen').style.display='none';
+}
+
+let charts = {};
+
+async function loadAnalytics(){
+ try {
+  let data;
+  try {
+    const res = await fetch('/api/analytics');
+    const text = await res.text();
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.log('API returned non-JSON:', text.slice(0,100));
+      throw new Error('Backend returned: ' + text.slice(0,50));
+    }
+  } catch(e){
+    throw e;
+  }
+  
+  document.getElementById('totalViews').textContent = data.totalViews.toLocaleString();
+  document.getElementById('uniqueVisitors').textContent = data.uniqueVisitors.toLocaleString();
+  document.getElementById('onlineNow').textContent = data.onlineNow;
+  document.getElementById('onlineCount').textContent = data.onlineNow;
+  document.getElementById('totalSubmissions').textContent = data.totalSubmissions;
+  document.getElementById('lastUpdate').textContent = 'Last update: ' + new Date().toLocaleTimeString();
+  
+  // Conversion rate
+  const conv = data.totalViews>0 ? ((data.totalSubmissions/data.totalViews)*100).toFixed(1) : 0;
+  document.getElementById('convRate').textContent = conv + '% conversion';
+  document.getElementById('funnelViews').textContent = data.totalViews;
+  document.getElementById('funnelForm').textContent = (data.pages['/#order']||0) + (data.pages['/#order']||0);
+  document.getElementById('funnelSubmit').textContent = data.totalSubmissions;
+  document.getElementById('funnelBar').style.width = conv + '%';
+  
+  // Today views for trend
+  const todayStr = new Date().toISOString().slice(0,10);
+  const todayViews = data.last7Days.find(d=>d.date===todayStr)?.count||0;
+  document.getElementById('viewsTrend').textContent = `↑ ${todayViews} today`;
+  
+  // Charts
+  draw7DaysChart(data.last7Days);
+  drawHourlyChart(data.hourlyToday);
+  drawServicesChart(data.topServices);
+  
+  // Device stats
+  const deviceEl = document.getElementById('deviceStats');
+  deviceEl.innerHTML = Object.entries(data.devices).map(([k,v])=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span><span class="dot ${k==='Mobile'?'dot-blue':'dot-green'}"></span> ${k}</span><b>${v}</b></div>`).join('') || '<div style="font-size:11px;color:var(--muted)">No data</div>';
+  
+  const pageEl = document.getElementById('pageStats');
+  pageEl.innerHTML = Object.entries(data.pages).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>${k||'/'}</span><b>${v}</b></div>`).join('') || '<div style="font-size:11px;color:var(--muted)">No data</div>';
+  
+  // Top services list
+  document.getElementById('topServicesList').innerHTML = data.topServices.slice(0,5).map(s=>`<div style="display:flex;justify-content:space-between;font-size:11px;background:var(--bg);padding:6px 8px;border-radius:8px"><span>${s.service}</span><b>${s.count} views</b></div>`).join('');
+  
+  // Active now
+  const activeEl = document.getElementById('activeNowList');
+  if(data.activeNow.length===0){
+   activeEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px">No one online now<br>Open your main website in another tab to see yourself here!</div>';
+  } else {
+   activeEl.innerHTML = data.activeNow.map(v=>`<div style="background:var(--bg);padding:8px 10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center"><div><b style="font-size:11px">${v.id}</b><br><span style="font-size:10px;color:var(--muted)">${v.time} - ${v.page} - ${v.service||'Browsing'}</span></div><span class="badge badge-live">● LIVE</span></div>`).join('');
+  }
+  
+  // Recent visitors
+  document.getElementById('recentVisitors').innerHTML = data.recentVisitors.map(v=>`<tr><td>${v.time}</td><td>${v.page}</td><td>${v.service||'-'}</td><td>${v.device}</td></tr>`).join('');
+  
+  // All visits
+  document.getElementById('allVisits').innerHTML = data.allVisits.slice().reverse().map(v=>`<tr><td>${v.date} ${v.time}</td><td>${v.sessionId.slice(0,8)||v.id}</td><td>${v.page}</td><td><span class="badge ${v.action==='submission'?'badge-new':''}">${v.action}</span></td><td>${v.service||'-'}</td><td>${v.device}</td><td>${v.orderId||'-'}</td></tr>`).join('');
+  
+ } catch(e){
+  console.error(e);
+  console.log('Analytics backend not reachable, showing demo data. Error:', e.message);
+  // Show demo data instead of crashing
+  const demoData = {
+    totalViews: 127,
+    uniqueVisitors: 89,
+    onlineNow: 3,
+    totalSubmissions: 12,
+    last7Days: [
+      {date:'2026-09-13', count:12, label:'Sat'},
+      {date:'2026-09-14', count:19, label:'Sun'},
+      {date:'2026-09-15', count:25, label:'Mon'},
+      {date:'2026-09-16', count:32, label:'Tue'},
+      {date:'2026-09-17', count:18, label:'Wed'},
+      {date:'2026-09-18', count:28, label:'Thu'},
+      {date:'2026-09-19', count:15, label:'Fri'}
+    ],
+    topServices: [
+      {service:'Project Full Package', count:45},
+      {service:'Website Development - Basic', count:32},
+      {service:'Printing B/W', count:28},
+      {service:'JAMB Registration', count:15},
+      {service:'Graphic Design', count:10}
+    ],
+    devices: {'Mobile': 89, 'Desktop': 38},
+    pages: {'/': 67, '/#pricing': 45, '/#order': 38, '/#services': 25},
+    recentVisitors: [
+      {time:'18:05:22', page:'/', service:'Project Full Package', device:'Mobile'},
+      {time:'18:03:15', page:'/#order', service:'Website Development', device:'Desktop'},
+      {time:'18:01:42', page:'/#pricing', service:'Printing B/W', device:'Mobile'}
+    ],
+    activeNow: [
+      {id:'V-12345', time:'18:06:10', page:'/', service:'Browsing', sessionId:'S-abc'},
+      {id:'V-12346', time:'18:05:55', page:'/#order', service:'Project Full Package', sessionId:'S-def'}
+    ],
+    hourlyToday: Array.from({length:24}, (_,h)=>({hour:h, count: h>=9 && h<=20 ? Math.floor(Math.random()*8) : 0})),
+    allVisits: []
+  };
+  // Use demo data
+  const data = demoData;
+  document.getElementById('totalViews').textContent = data.totalViews.toLocaleString();
+  document.getElementById('uniqueVisitors').textContent = data.uniqueVisitors.toLocaleString();
+  document.getElementById('onlineNow').textContent = data.onlineNow;
+  document.getElementById('onlineCount').textContent = data.onlineNow;
+  document.getElementById('totalSubmissions').textContent = data.totalSubmissions;
+  document.getElementById('lastUpdate').textContent = 'Demo Data - Backend not connected (see console)';
+  draw7DaysChart(data.last7Days);
+  drawHourlyChart(data.hourlyToday);
+  drawServicesChart(data.topServices);
+  document.getElementById('deviceStats').innerHTML = Object.entries(data.devices).map(([k,v])=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span><span class="dot ${k==='Mobile'?'dot-blue':'dot-green'}"></span> ${k}</span><b>${v}</b></div>`).join('');
+  document.getElementById('pageStats').innerHTML = Object.entries(data.pages).map(([k,v])=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>${k}</span><b>${v}</b></div>`).join('');
+  document.getElementById('topServicesList').innerHTML = data.topServices.slice(0,5).map(s=>`<div style="display:flex;justify-content:space-between;font-size:11px;background:var(--bg);padding:6px 8px;border-radius:8px"><span>${s.service}</span><b>${s.count} views</b></div>`).join('');
+  document.getElementById('activeNowList').innerHTML = data.activeNow.map(v=>`<div style="background:var(--bg);padding:8px 10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center"><div><b style="font-size:11px">${v.id}</b><br><span style="font-size:10px;color:var(--muted)">${v.time} - ${v.page}</span></div><span class="badge badge-live">● LIVE</span></div>`).join('');
+  document.getElementById('recentVisitors').innerHTML = data.recentVisitors.map(v=>`<tr><td>${v.time}</td><td>${v.page}</td><td>${v.service||'-'}</td><td>${v.device}</td></tr>`).join('');
+  return;
+ }
+
+}
+
+function draw7DaysChart(days){
+ const ctx = document.getElementById('chart7Days').getContext('2d');
+ if(charts.chart7Days) charts.chart7Days.destroy();
+ charts.chart7Days = new Chart(ctx, {
+  type: 'bar',
+  data: {
+   labels: days.map(d=>d.label),
+   datasets: [{label:'Views', data: days.map(d=>d.count), backgroundColor:'#f59e0b', borderRadius:6}]
+  },
+  options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}}
+ });
+}
+
+function drawHourlyChart(hourly){
+ const ctx = document.getElementById('chartHourly').getContext('2d');
+ if(charts.chartHourly) charts.chartHourly.destroy();
+ charts.chartHourly = new Chart(ctx, {
+  type: 'line',
+  data: {
+   labels: hourly.map(h=>h.hour+':00'),
+   datasets: [{label:'Views Today', data: hourly.map(h=>h.count), borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,.1)', fill:true, tension:.4}]
+  },
+  options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}}
+ });
+}
+
+function drawServicesChart(services){
+ const ctx = document.getElementById('chartServices').getContext('2d');
+ if(charts.chartServices) charts.chartServices.destroy();
+ const top = services.slice(0,5);
+ charts.chartServices = new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+   labels: top.map(s=>s.service),
+   datasets: [{data: top.map(s=>s.count), backgroundColor:['#0f172a','#f59e0b','#16a34a','#3b82f6','#ef4444']}]
+  },
+  options: {responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{font:{size:10}}}}}
+ });
+}
+
+setInterval(()=>{if(localStorage.getItem('adminLoggedIn')==='true') loadAnalytics();}, 5000);
+if(localStorage.getItem('adminLoggedIn')==='true') loadAnalytics();
+</script>
+</body>
+</html>

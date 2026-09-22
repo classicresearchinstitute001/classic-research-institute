@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Dashboard - Classic Research Institute - BUSINESS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f172a;--gold:#f59e0b;--green:#16a34a;--bg:#f8fafc;--line:#e2e8f0;--muted:#64748b;--sidebar:260px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:var(--bg);color:var(--navy);line-height:1.4;display:flex;min-height:100vh}
+a{text-decoration:none;color:inherit}
+#sidebar{width:var(--sidebar);background:var(--navy);color:white;position:fixed;top:0;left:0;bottom:0;overflow:auto;z-index:20;display:flex;flex-direction:column}
+#sidebar .logo{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;gap:10px;align-items:center;font-weight:800}
+#sidebar .logo .mark{width:32px;height:32px;background:var(--gold);color:var(--navy);display:grid;place-items:center;border-radius:8px;font-weight:800}
+#sidebar nav{flex:1;padding:12px 8px;display:grid;gap:4px;align-content:start}
+.nav-item{padding:10px 12px;border-radius:10px;cursor:pointer;display:flex;gap:10px;align-items:center;font-size:13px;font-weight:600;transition:.2s;color:#94a3b8}
+.nav-item:hover{background:rgba(255,255,255,.08);color:white}
+.nav-item.active{background:white;color:var(--navy);font-weight:800}
+.nav-item .badge{margin-left:auto;background:var(--gold);color:var(--navy);padding:2px 7px;border-radius:100px;font-size:10px;font-weight:800}
+.nav-section{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#64748b;padding:12px 12px 4px;font-weight:700}
+#main{margin-left:var(--sidebar);flex:1;min-width:0}
+header{background:white;border-bottom:1px solid var(--line);padding:12px 20px;position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.live-dot{width:10px;height:10px;background:#22c55e;border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.wrap{max-width:1200px;margin:0 auto;padding:16px 20px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.stat b{font-size:26px;display:block}.stat span{font-size:11px;color:var(--muted)}
+.stat .icon{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px}
+.stat.green .icon{background:#dcfce7}.stat.gold .icon{background:#fef3c7}.stat.blue .icon{background:#dbeafe}.stat.purple .icon{background:#f3e8ff}
+.btn{padding:8px 14px;border-radius:9px;border:none;font-weight:700;cursor:pointer;font-size:11px;display:inline-flex;align-items:center;gap:6px}
+.btn-dark{background:var(--navy);color:white}.btn-green{background:var(--green);color:white}.btn-gold{background:var(--gold);color:var(--navy)}.btn-wa{background:#25D366;color:white}.btn-ghost{background:white;border:1px solid var(--line)}.btn-red{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.card{background:white;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.badge{padding:3px 8px;border-radius:100px;font-size:10px;font-weight:700}
+.badge-new{background:#dcfce7;color:#166534}.badge-progress{background:#fef3c7;color:#92400e}.badge-done{background:#dbeafe;color:#1e40af}
+.tab{display:none}.tab.active{display:block;animation:fade .2s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{text-align:left;padding:10px 8px;border-bottom:2px solid var(--line);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.table td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+#loginScreen{position:fixed;inset:0;background:rgba(15,23,42,.95);backdrop-filter:blur(12px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:white;border-radius:18px;padding:28px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-box input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin:12px 0;font-size:14px}
+#notificationBanner{position:fixed;top:80px;right:20px;background:var(--navy);color:white;padding:14px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:50;display:none;max-width:340px;animation:slideIn .3s}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.filter{padding:6px 12px;border-radius:100px;border:1px solid var(--line);background:white;font-size:11px;font-weight:600;cursor:pointer}
+.filter.active{background:var(--navy);color:white;border-color:var(--navy)}
+@media(max-width:900px){#sidebar{transform:translateX(-100%);transition:.3s}#sidebar.open{transform:translateX(0)}#main{margin-left:0}.grid4,.grid3,.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+<div class="login-box">
+<div style="font-size:36px">🏢</div>
+<h2 style="font-size:22px;margin:8px 0">Classic Research Institute<br><span style="font-size:14px;color:var(--muted)">Business Admin Dashboard</span></h2>
+<p style="font-size:12px;color:var(--muted)">Company dashboard - submissions, analytics, ratings, payments & revenue</p>
+<input type="password" id="adminPass" placeholder="Enter password" onkeypress="if(event.key==='Enter')checkLogin()">
+<button onclick="checkLogin()" class="btn btn-dark" style="width:100%;justify-content:center;padding:12px">🔓 Login as Admin</button>
+<p style="font-size:10px;color:var(--muted);margin-top:10px">Password: <code>JESUSISLORD</code></p>
+<p id="loginError" style="color:#ef4444;font-size:12px;margin-top:8px;display:none">Wrong password!</p>
+</div>
+</div>
+
+<div id="notificationBanner">
+<div style="display:flex;gap:10px;align-items:flex-start">
+<div style="font-size:24px">🔔</div>
+<div style="flex:1">
+<b id="notifTitle">New Submission!</b><br>
+<span id="notifText" style="font-size:12px">New project received</span><br>
+<button onclick="document.getElementById('notificationBanner').style.display='none'" style="margin-top:6px;background:var(--gold);color:var(--navy);border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">View Now</button>
+</div>
+<div style="cursor:pointer;font-size:18px" onclick="document.getElementById('notificationBanner').style.display='none'">✕</div>
+</div>
+</div>
+
+<div id="sidebar">
+<div class="logo"><span class="mark">C</span><div><div>Classic Research</div><div style="font-size:10px;color:#94a3b8;font-weight:400">Business Dashboard</div></div><span class="live-dot" style="margin-left:auto"></span></div>
+<nav>
+<div class="nav-section">Overview</div>
+<div class="nav-item active" onclick="switchTab('dashboard')"><span>📊</span> Dashboard <span class="badge" id="dashBadge">Live</span></div>
+<div class="nav-item" onclick="switchTab('submissions')"><span>📥</span> Submissions <span class="badge" id="subBadge">0</span></div>
+<div class="nav-section">Business</div>
+<div class="nav-item" onclick="switchTab('payments')"><span>💰</span> Payments & Revenue <span class="badge" id="payBadge" style="background:#22c55e;color:white">₦0</span></div>
+<div class="nav-item" onclick="switchTab('ratings')"><span>⭐</span> Ratings & Reviews <span class="badge" id="rateBadge">0</span></div>
+<div class="nav-section">Insights</div>
+<div class="nav-item" onclick="switchTab('analytics')"><span>📈</span> Analytics <span style="margin-left:auto;font-size:10px;color:#64748b">Live feed</span></div>
+<div class="nav-item" onclick="switchTab('custom')"><span>👁️</span> Custom Tracking</div>
+<div class="nav-section">System</div>
+<div class="nav-item" onclick="switchTab('settings')"><span>⚙️</span> Payment Settings</div>
+<div class="nav-item" onclick="window.open('/','_blank')"><span>🌐</span> View Website</div>
+<div class="nav-item" onclick="logout()"><span>🚪</span> Logout</div>
+</nav>
+<div style="padding:12px;border-top:1px solid rgba(255,255,255,.1);font-size:10px;color:#64748b">
+<div>🏢 Classic Research Institute</div>
+<div>Abuja • Company Dashboard</div>
+<div style="margin-top:6px"><span class="live-dot"></span> Live Backend</div>
+</div>
+</div>
+
+<div id="main">
+<header>
+<div style="display:flex;gap:12px;align-items:center">
+<button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none" id="menuBtn" class="btn btn-ghost">☰</button>
+<div><b id="pageTitle">Dashboard</b><div style="font-size:11px;color:var(--muted)" id="pageDesc">Business overview - submissions, revenue, ratings</div></div>
+</div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<span style="font-size:11px;background:#dcfce7;color:#166534;padding:4px 10px;border-radius:100px;font-weight:700" id="notifStatus">🔔 Live</span>
+<span id="autoRefresh" style="font-size:11px;color:var(--muted)">Auto-refresh 5s</span>
+<button onclick="loadAll()" class="btn btn-dark">🔄 Refresh All</button>
+</div>
+</header>
+
+<div class="wrap">
+
+<!-- DASHBOARD TAB -->
+<div id="tab-dashboard" class="tab active">
+<div class="grid4">
+<div class="stat green"><div class="icon">📥</div><b id="statTotal">0</b><span>Total Submissions</span><div style="font-size:10px;color:var(--green);margin-top:4px" id="statTodaySub">Today: 0</div></div>
+<div class="stat gold"><div class="icon">💰</div><b id="statRevenue">₦0</b><span>Total Revenue</span><div style="font-size:10px;color:#92400e;margin-top:4px" id="statTodayRev">Today: ₦0</div></div>
+<div class="stat blue"><div class="icon">⭐</div><b id="statRatings">0</b><span>Ratings / Reviews</span><div style="font-size:10px;color:#1e40af;margin-top:4px" id="statAvg">Avg: 0.0</div></div>
+<div class="stat purple"><div class="icon">👁️</div><b id="statOnline">0</b><span>Online Now</span><div style="font-size:10px;color:#7c3aed;margin-top:4px" id="statViews">Total views: 0</div></div>
+</div>
+
+<div class="grid2">
+<div class="card">
+<h4 style="font-size:13px;margin-bottom:10px">💰 Revenue Last 7 Days</h4>
+<div id="revenueChart" style="display:grid;gap:6px"></div>
+</div>
+<div class="card">
+<h4 style="font-size:13px;margin-bottom:10px">📊 Submissions by Service</h4>
+<div id="serviceChart" style="display:grid;gap:6px"></div>
+</div>
+</div>
+
+<div class="card" style="background:#f0fdf4;border:1px solid #bbf7d0">
+<h4 style="font-size:12px">🏢 Company Mode - How Business Works:</h4>
+<ol style="font-size:11px;margin-left:14px;display:grid;gap:3px;margin-top:6px">
+<li><b>Client submits</b> project/website → You get notification + appears in Submissions</li>
+<li><b>Client pays</b> via Paystack on website → You see payment + revenue in Payments tab → Money goes to your bank</li>
+<li><b>Client rates</b> you → Appears in Ratings tab → Builds trust</li>
+<li><b>You track</b> everything in Analytics tab → See what clients do live</li>
+</ol>
+</div>
+
+<div class="grid2">
+<div>
+<h4 style="font-size:13px;margin-bottom:8px">📥 Recent Submissions (5)</h4>
+<div id="recentSubs"></div>
+</div>
+<div>
+<h4 style="font-size:13px;margin-bottom:8px">💳 Recent Payments (5)</h4>
+<div id="recentPays"></div>
+</div>
+</div>
+</div>
+
+<!-- SUBMISSIONS TAB -->
+<div id="tab-submissions" class="tab">
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+<div class="filter active" onclick="filterBy('all')">All</div>
+<div class="filter" onclick="filterBy('new')">New</div>
+<div class="filter" onclick="filterBy('project')">Projects</div>
+<div class="filter" onclick="filterBy('website')">Website</div>
+<div class="filter" onclick="filterBy('today')">Today</div>
+<button class="btn btn-ghost" onclick="exportCSV()">📥 Export CSV</button>
+<button class="btn btn-ghost" onclick="testSubmission()">🧪 Test</button>
+</div>
+<div id="submissions"></div>
+</div>
+
+<!-- PAYMENTS TAB -->
+<div id="tab-payments" class="tab">
+<div class="grid4">
+<div class="stat gold"><div class="icon">💰</div><b id="payTotal">₦0</b><span>Total Revenue</span></div>
+<div class="stat green"><div class="icon">📅</div><b id="payToday">₦0</b><span>Today</span></div>
+<div class="stat blue"><div class="icon">📆</div><b id="payMonth">₦0</b><span>This Month</span></div>
+<div class="stat purple"><div class="icon">🧾</div><b id="payCount">0</b><span>Payments</span></div>
+</div>
+
+<div class="card">
+<h4 style="font-size:13px;margin-bottom:10px">💳 All Payments & Revenue</h4>
+<div style="overflow:auto">
+<table class="table" id="paymentsTable">
+<thead><tr><th>Date</th><th>Ref</th><th>Customer</th><th>Service</th><th>Order ID</th><th>Amount</th><th>Status</th><th>Gateway</th></tr></thead>
+<tbody id="paymentsBody"><tr><td colspan="8" style="text-align:center;color:var(--muted)">Loading payments...</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<div class="grid2">
+<div class="card">
+<h4 style="font-size:13px;margin-bottom:8px">📊 Revenue by Service</h4>
+<div id="payByService"></div>
+</div>
+<div class="card" style="background:#fffbeb;border:1px solid #fde68a">
+<h4 style="font-size:13px">💡 How Paystack Works:</h4>
+<p style="font-size:11px;margin-top:6px;line-height:1.6">
+1. Student clicks <b>Pay Now</b> on website → Enters email + amount<br>
+2. Paystack popup → Pays with card/bank/USSD<br>
+3. Money goes to YOUR bank (after Paystack fee 1.5%)<br>
+4. Payment appears here instantly with reference<br>
+5. You see revenue grow here<br><br>
+<b>Setup:</b> Go to Settings tab → Add your Paystack public key (pk_live_...) from paystack.com dashboard → Save → Live!
+</p>
+</div>
+</div>
+</div>
+
+<!-- RATINGS TAB -->
+<div id="tab-ratings" class="tab">
+<div class="grid3">
+<div class="stat blue"><div class="icon">⭐</div><b id="ratingAvg">0.0</b><span>Average Rating</span></div>
+<div class="stat gold"><div class="icon">💬</div><b id="ratingTotal">0</b><span>Total Ratings</span></div>
+<div class="stat green"><div class="icon">✅</div><b id="rating5">0</b><span>5-Star Reviews</span></div>
+</div>
+<div id="ratingsList"></div>
+</div>
+
+<!-- ANALYTICS TAB -->
+<div id="tab-analytics" class="tab">
+<div class="grid2">
+<div class="card"><h4>📈 Analytics - Quick Links</h4><div style="display:grid;gap:8px;margin-top:10px">
+<a href="/analytics" target="_blank" class="btn btn-dark" style="justify-content:center">📊 Open YouTube Studio Analytics</a>
+<a href="/custom" target="_blank" class="btn btn-gold" style="justify-content:center">👁️ Open Custom Tracking (Own)</a>
+<button onclick="loadAnalytics()" class="btn btn-ghost" style="justify-content:center">🔄 Refresh Stats</button>
+</div></div>
+<div class="card"><h4>👁️ Live Stats</h4><div id="analyticsStats" style="font-size:12px;display:grid;gap:6px;margin-top:8px">Loading...</div></div>
+</div>
+<div class="card"><h4>🔥 Recent Activity (Last 20)</h4><div id="analyticsRecent" style="font-size:11px"></div></div>
+</div>
+
+<!-- CUSTOM TAB -->
+<div id="tab-custom" class="tab">
+<div class="card" style="text-align:center;padding:30px">
+<div style="font-size:32px">👁️</div>
+<h3>Custom Tracking - Everything Clients Do</h3>
+<p style="font-size:12px;color:var(--muted);margin:8px 0">Live feed, online now with current action, service interest, funnel</p>
+<a href="/custom" target="_blank" class="btn btn-dark">Open Custom Analytics Full Page</a>
+<div style="margin-top:12px;font-size:11px;color:var(--muted)">Password: JESUSISLORD</div>
+</div>
+</div>
+
+<!-- SETTINGS TAB -->
+<div id="tab-settings" class="tab">
+<div class="card">
+<h4 style="font-size:14px">⚙️ Payment Settings - Paystack / Flutterwave</h4>
+<p style="font-size:11px;color:var(--muted);margin:6px 0">Configure your payment gateway to receive money on website</p>
+<div style="display:grid;gap:12px;margin-top:12px;max-width:500px">
+<div><label style="font-size:12px;font-weight:600">Paystack Public Key (pk_live_... or pk_test_...)</label><input id="paystackKey" placeholder="pk_test_..." style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:12px"><div style="font-size:10px;color:var(--muted)">Get from https://dashboard.paystack.com → Settings → API Keys</div></div>
+<div><label style="font-size:12px;font-weight:600">Flutterwave Public Key (FLWPUBK-...)</label><input id="flutterKey" placeholder="FLWPUBK_TEST-..." style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:12px"><div style="font-size:10px;color:var(--muted)">Optional, alternative to Paystack</div></div>
+<div><label style="font-size:12px;font-weight:600">Business Name</label><input id="bizName" value="Classic Research Institute" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:12px"></div>
+<div><label style="font-size:12px;font-weight:600">Bank Account for Settlement</label><input id="bankInfo" placeholder="e.g. GTB 0123456789 - Classic Research" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:12px"></div>
+<button onclick="saveSettings()" class="btn btn-dark">💾 Save Settings</button>
+<button onclick="testPaystack()" class="btn btn-gold">🧪 Test Paystack Popup</button>
+<div id="settingsMsg" style="font-size:12px;margin-top:8px;display:none"></div>
+</div>
+</div>
+<div class="card" style="background:#eff6ff;border:1px solid #bfdbfe">
+<h4 style="font-size:12px">📚 How to Get Paystack Keys (2 mins):</h4>
+<ol style="font-size:11px;margin-left:14px;display:grid;gap:4px;margin-top:6px">
+<li>Go to https://paystack.com → Sign up as business (free)</li>
+<li>Complete KYC (BVN, ID, business docs) → Takes 1 day approval</li>
+<li>Dashboard → Settings → API Keys → Copy <b>Public Key</b> (pk_live_...) and paste above</li>
+<li>For testing now, use <b>pk_test_...</b> from Paystack test keys - payments won't be real but popup works</li>
+<li>Set bank account in Paystack dashboard → Money settles to your bank T+1 day</li>
+<li>Paystack fee: 1.5% + ₦100 capped at ₦2000 per transaction</li>
+</ol>
+</div>
+</div>
+
+</div>
+</div>
+
+<audio id="notifSound" preload="auto"><source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg"></audio>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+const ADMIN_PASSWORD = 'JESUSISLORD';
+function checkLogin(){
+ const pass=document.getElementById('adminPass').value;
+ if(pass===ADMIN_PASSWORD){
+  document.getElementById('loginScreen').style.display='none';
+  localStorage.setItem('adminLoggedIn','true');
+  enableNotifications(); loadAll();
+ } else {document.getElementById('loginError').style.display='block';}
+}
+function logout(){localStorage.removeItem('adminLoggedIn');document.getElementById('loginScreen').style.display='flex';}
+if(localStorage.getItem('adminLoggedIn')==='true'){document.getElementById('loginScreen').style.display='none';}
+let currentTab='dashboard';
+function switchTab(tab){
+ currentTab=tab;
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ document.getElementById('tab-'+tab).classList.add('active');
+ document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+ event.currentTarget.classList.add('active');
+ const titles={dashboard:['Dashboard','Business overview'],submissions:['Submissions','All client submissions'],payments:['Payments & Revenue','Money received via Paystack'],ratings:['Ratings & Reviews','Client feedback'],analytics:['Analytics','Traffic & behavior'],custom:['Custom Tracking','Everything clients do live'],settings:['Settings','Payment gateway config']};
+ document.getElementById('pageTitle').textContent=titles[tab][0];
+ document.getElementById('pageDesc').textContent=titles[tab][1];
+ if(tab==='submissions')loadSubmissions();
+ if(tab==='payments')loadPayments();
+ if(tab==='ratings')loadRatings();
+ if(tab==='analytics')loadAnalytics();
+ if(tab==='dashboard')loadAll();
+}
+let lastCount=0, lastPayCount=0;
+function playSound(){document.getElementById('notifSound').play().catch(()=>{});}
+function showBanner(title,text){document.getElementById('notifTitle').textContent=title;document.getElementById('notifText').innerHTML=text;document.getElementById('notificationBanner').style.display='block';setTimeout(()=>document.getElementById('notificationBanner').style.display='none',8000);}
+function showBrowserNotif(title,body){if(Notification.permission==='granted'){new Notification(title,{body,icon:'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'});}}
+function enableNotifications(){if('Notification' in window){Notification.requestPermission().then(p=>{if(p==='granted'){document.getElementById('notifStatus').textContent='🔔 Notifications ON';}});}}
+let allSubmissions=[], currentFilter='all';
+async function loadSubmissions(){
+ try{
+  const res=await fetch('/api/submissions'); const data=await res.json();
+  if(data.length>lastCount && lastCount!==0){const newSubs=data.slice(0,data.length-lastCount);newSubs.forEach(s=>{playSound();showBanner('New Submission!',`<b>${s.orderId}</b> - ${s.name}<br>${s.service}`);showBrowserNotif(`New ${s.orderId}`,`${s.name} - ${s.service}`);});}
+  lastCount=data.length; allSubmissions=data;
+  document.getElementById('subBadge').textContent=data.length;
+  document.getElementById('statTotal').textContent=data.length;
+  const today=new Date().toDateString(); document.getElementById('statTodaySub').textContent='Today: '+data.filter(s=>new Date(s.date).toDateString()===today).length;
+  renderSubmissions();
+ }catch(e){console.error(e);}
+}
+function renderSubmissions(){
+ const container=document.getElementById('submissions');
+ let filtered=[...allSubmissions];
+ if(currentFilter==='new')filtered=filtered.filter(s=>s.status.includes('New'));
+ if(currentFilter==='project')filtered=filtered.filter(s=>s.service.toLowerCase().includes('project')||s.service.toLowerCase().includes('thesis'));
+ if(currentFilter==='website')filtered=filtered.filter(s=>s.service.toLowerCase().includes('website'));
+ if(currentFilter==='today'){const today=new Date().toDateString();filtered=filtered.filter(s=>new Date(s.date).toDateString()===today);}
+ if(filtered.length===0){container.innerHTML=`<div class="card" style="text-align:center;color:var(--muted)">No submissions for "${currentFilter}"</div>`;return;}
+ container.innerHTML=filtered.map(s=>`
+  <div class="card ${s.status.includes('New')?'new':''}" style="${s.status.includes('New')?'border-left:4px solid var(--green);background:#f0fdf4':''}">
+   <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <div style="flex:1;min-width:250px">
+     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><b style="color:var(--gold)">${s.orderId}</b><span class="badge ${s.status.includes('New')?'badge-new':'badge-done'}">${s.status}</span><span style="font-size:10px;color:var(--muted)">${s.date}</span></div>
+     <div style="margin-top:8px;font-size:12px;line-height:1.6"><b>${s.name}</b> - <a href="https://wa.me/${s.phone.replace(/[^0-9]/g,'')}" target="_blank" style="color:var(--green);font-weight:700">${s.phone}</a><br><b>Service:</b> ${s.service}<br>${s.topic?`<b>Topic:</b> ${s.topic}<br>`:''}${s.bizName?`<b>Business:</b> ${s.bizName} - ${s.bizType}<br>`:''}${s.school?`<b>School:</b> ${s.school} | ${s.dept}<br>`:''}<b>Files:</b> ${(s.files||[]).join(', ')||'None'}<br>${s.notes?`<b>Notes:</b> ${s.notes}<br>`:''}</div>
+    </div>
+    <div style="display:grid;gap:5px;min-width:140px">
+     <div style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:8px;margin-bottom:6px">
+      <div style="font-size:10px;font-weight:700;margin-bottom:4px">📤 SEND WORK TO CLIENT (No WhatsApp needed)</div>
+      <input type="file" id="file-${s.orderId}" style="font-size:10px;width:100%;margin-bottom:4px">
+      <input type="text" id="note-${s.orderId}" placeholder="Note for client (optional)" style="width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:6px;font-size:10px;margin-bottom:4px">
+      <button class="btn btn-dark" style="width:100%;justify-content:center" onclick="uploadResult('${s.orderId}')">📤 Upload & Send to Client</button>
+      ${s.resultFile ? `<div style="font-size:10px;color:var(--green);margin-top:4px">✅ Sent: ${s.resultFile} - <a href="/results/${s.resultFile}" target="_blank" style="color:var(--green);text-decoration:underline">View</a></div>` : '<div style="font-size:9px;color:var(--muted);margin-top:3px">Client will download via Track Order with Order ID</div>'}
+     </div>
+     <a class="btn btn-ghost" href="https://wa.me/${s.phone.replace(/[^0-9]/g,'')}?text=Hello%20${encodeURIComponent(s.name)}%2C%20your%20order%20${s.orderId}%20is%20ready!%20Track%20and%20download%20here:%20https://classicresearchinstitute.netlify.app/%23track" target="_blank" style="font-size:10px">💬 WhatsApp if needed</a>
+     <button class="btn btn-gold" onclick="updateStatus('${s.orderId}','In Progress')">▶️ Working</button>
+     <button class="btn btn-green" onclick="updateStatus('${s.orderId}','Ready for Download')">✅ Ready</button>
+     <button class="btn btn-dark" onclick="updateStatus('${s.orderId}','Delivered')">📦 Delivered</button>
+     <button class="btn btn-ghost" onclick="deleteSubmission('${s.orderId}')">🗑️ Delete</button>
+    </div>
+   </div>
+  </div>
+ `).join('');
+ const recent=document.getElementById('recentSubs'); if(recent){recent.innerHTML=allSubmissions.slice(0,5).map(s=>`<div style="background:white;border:1px solid var(--line);border-radius:8px;padding:8px;margin-bottom:6px;font-size:11px"><b>${s.orderId}</b> - ${s.name} - ${s.service}<br><span style="color:var(--muted)">${s.date}</span></div>`).join('');}
+}
+async function updateStatus(id,status){await fetch(`/api/submissions/${id}/status`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})});loadSubmissions();}
+async function deleteSubmission(id){if(!confirm(`Delete ${id}?`))return;await fetch(`/api/submissions/${id}`,{method:'DELETE'});loadSubmissions();}
+function filterBy(type){currentFilter=type;document.querySelectorAll('.filter').forEach(f=>f.classList.remove('active'));event.target.classList.add('active');renderSubmissions();}
+function exportCSV(){if(allSubmissions.length===0){alert('No data');return;}let csv='OrderID,Date,Name,Phone,Service,Topic,School,Dept,BusinessName,Budget,Files,Notes,Status\n';allSubmissions.forEach(s=>{csv+=`"${s.orderId}","${s.date}","${s.name}","${s.phone}","${s.service}","${(s.topic||'').replace(/"/g,'""')}","${s.school||''}","${s.dept||''}","${s.bizName||''}","${s.budget||''}","${(s.files||[]).join(';')}","${(s.notes||'').replace(/"/g,'""')}","${s.status}"\n`;});const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`submissions-${new Date().toISOString().slice(0,10)}.csv`;a.click();}
+async function testSubmission(){const testData={name:"Test Student "+Math.floor(Math.random()*100),phone:"08012345678",service:"Project Full Package ₦30,000",topic:"Impact of Social Media",school:"UniAbuja",dept:"Mass Comm",deadline:"2026-09-30",notes:"Test",files:["test.docx"]};await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(testData)});loadSubmissions();}
+
+let allPayments=[];
+async function loadPayments(){
+ try{
+  const res=await fetch('/api/payments'); const data=await res.json();
+  if(data.total>lastPayCount && lastPayCount!==0){const newPays=data.payments.slice(0,data.total-lastPayCount);newPays.forEach(p=>{playSound();showBanner('New Payment! 💰',`<b>₦${p.amount}</b> from ${p.name}<br>${p.service}`);showBrowserNotif(`Payment ₦${p.amount}`,`${p.name} - ${p.service}`);});}
+  lastPayCount=data.total; allPayments=data.payments;
+  document.getElementById('payTotal').textContent='₦'+data.totalRevenue.toLocaleString();
+  document.getElementById('payToday').textContent='₦'+data.todayRevenue.toLocaleString();
+  document.getElementById('payMonth').textContent='₦'+data.monthRevenue.toLocaleString();
+  document.getElementById('payCount').textContent=data.total;
+  document.getElementById('payBadge').textContent='₦'+data.totalRevenue.toLocaleString();
+  document.getElementById('statRevenue').textContent='₦'+data.totalRevenue.toLocaleString();
+  document.getElementById('statTodayRev').textContent='Today: ₦'+data.todayRevenue.toLocaleString();
+  const tbody=document.getElementById('paymentsBody');
+  if(data.payments.length===0){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--muted)">No payments yet. When client pays via Paystack, it appears here.</td></tr>`;}
+  else{tbody.innerHTML=data.payments.map(p=>`<tr><td>${p.date}</td><td><code>${p.reference}</code></td><td><b>${p.name}</b><br><span style="font-size:10px;color:var(--muted)">${p.email}</span></td><td>${p.service}</td><td>${p.orderId||'-'}</td><td><b>₦${p.amount.toLocaleString()}</b></td><td><span class="badge ${p.status==='success'?'badge-new':'badge-progress'}">${p.status}</span></td><td>${p.gateway}</td></tr>`).join('');}
+  // Revenue by service
+  const revRes=await fetch('/api/revenue'); const revData=await revRes.json();
+  document.getElementById('payByService').innerHTML=Object.entries(revData.byService).map(([svc,amt])=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--line)"><span>${svc}</span><b>₦${amt.toLocaleString()}</b></div>`).join('') || '<div style="color:var(--muted);font-size:11px">No revenue yet</div>';
+  // Recent pays for dashboard
+  const recentP=document.getElementById('recentPays'); if(recentP){recentP.innerHTML=data.payments.slice(0,5).map(p=>`<div style="background:white;border:1px solid var(--line);border-radius:8px;padding:8px;margin-bottom:6px;font-size:11px"><b>₦${p.amount.toLocaleString()}</b> - ${p.name} - ${p.service}<br><span style="color:var(--muted)">${p.date}</span></div>`).join('') || '<div style="color:var(--muted);font-size:11px">No payments</div>';}
+  // Revenue chart
+  document.getElementById('revenueChart').innerHTML=revData.dailyRevenue.map(d=>`<div style="display:flex;align-items:center;gap:8px;font-size:11px"><span style="width:30px">${d.label}</span><div style="flex:1;height:10px;background:var(--line);border-radius:10px;overflow:hidden"><div style="width:${Math.min(100,(d.amount/(revData.totalRevenue||1))*100*3)}%;height:100%;background:var(--gold)"></div></div><b>₦${d.amount.toLocaleString()}</b></div>`).join('');
+ }catch(e){console.error(e);}
+}
+
+async function loadRatings(){
+ try{
+  const res=await fetch('/api/ratings'); const data=await res.json();
+  document.getElementById('rateBadge').textContent=data.total;
+  document.getElementById('statRatings').textContent=data.total;
+  document.getElementById('statAvg').textContent='Avg: '+(data.average||0);
+  document.getElementById('ratingAvg').textContent=data.average||0;
+  document.getElementById('ratingTotal').textContent=data.total;
+  document.getElementById('rating5').textContent=data.ratings.filter(r=>r.stars===5).length;
+  document.getElementById('ratingsList').innerHTML=data.ratings.map(r=>`<div class="card"><div style="display:flex;justify-content:space-between"><b>${r.name}</b><span style="color:var(--gold)">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span></div><div style="font-size:11px;color:var(--muted)">${r.service} • ${r.date}</div><div style="font-size:12px;margin-top:6px">${r.review}</div></div>`).join('') || '<div class="card" style="text-align:center;color:var(--muted)">No ratings yet</div>';
+ }catch(e){console.error(e);}
+}
+
+async function loadAnalytics(){
+ try{
+  const res=await fetch('/api/analytics'); const data=await res.json();
+  document.getElementById('statOnline').textContent=data.onlineNow;
+  document.getElementById('statViews').textContent='Total views: '+data.totalViews;
+  document.getElementById('analyticsStats').innerHTML=`<div>Total Views: <b>${data.totalViews}</b></div><div>Unique Visitors: <b>${data.uniqueVisitors}</b></div><div>Online Now: <b>${data.onlineNow}</b></div><div>Submissions: <b>${data.totalSubmissions}</b></div><div>Devices: ${JSON.stringify(data.devices)}</div>`;
+  document.getElementById('analyticsRecent').innerHTML=(data.recentVisitors||[]).map(v=>`<div style="padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between"><span>${v.action} - ${v.service} - ${v.page}</span><span style="color:var(--muted)">${v.time} • ${v.device}</span></div>`).join('');
+  // Service chart
+  document.getElementById('serviceChart').innerHTML=(data.topServices||[]).map(s=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid var(--line)"><span>${s.service}</span><b>${s.count}</b></div>`).join('') || '<div style="color:var(--muted);font-size:11px">No data</div>';
+ }catch(e){console.error(e);}
+}
+
+async function loadAll(){loadSubmissions();loadPayments();loadRatings();loadAnalytics();}
+
+
+async function uploadResult(orderId){
+  const fileInput=document.getElementById('file-'+orderId);
+  const noteInput=document.getElementById('note-'+orderId);
+  if(!fileInput.files[0]){alert('Select file to send to client');return;}
+  const formData=new FormData();
+  formData.append('file', fileInput.files[0]);
+  formData.append('note', noteInput.value);
+  formData.append('status', 'Ready for Download');
+  const btn=event.target; const orig=btn.textContent; btn.textContent='⏳ Uploading...'; btn.disabled=true;
+  try{
+    const res=await fetch(`/api/submissions/${orderId}/result`,{method:'POST',body:formData});
+    const data=await res.json();
+    if(data.success){
+      alert(`✅ Sent to client! Client can now track with ${orderId} and download.`);
+      loadSubmissions();
+    } else {alert('Error: '+data.error);}
+  }catch(e){alert('Upload failed: '+e.message);}
+  btn.textContent=orig; btn.disabled=false;
+}
+
+function saveSettings(){
+ const pk=document.getElementById('paystackKey').value.trim();
+ const fk=document.getElementById('flutterKey').value.trim();
+ const bn=document.getElementById('bizName').value.trim();
+ const bi=document.getElementById('bankInfo').value.trim();
+ localStorage.setItem('paystackKey',pk);
+ localStorage.setItem('flutterKey',fk);
+ localStorage.setItem('bizName',bn);
+ localStorage.setItem('bankInfo',bi);
+ document.getElementById('settingsMsg').style.display='block';
+ document.getElementById('settingsMsg').textContent='✅ Settings saved! Paystack key will be used on website payment.';
+ document.getElementById('settingsMsg').style.color='#16a34a';
+}
+function loadSettings(){
+ document.getElementById('paystackKey').value=localStorage.getItem('paystackKey')||'pk_test_xxxxxxxxxxxxxxxx';
+ document.getElementById('flutterKey').value=localStorage.getItem('flutterKey')||'';
+ document.getElementById('bizName').value=localStorage.getItem('bizName')||'Classic Research Institute';
+ document.getElementById('bankInfo').value=localStorage.getItem('bankInfo')||'';
+}
+function testPaystack(){
+ const key=document.getElementById('paystackKey').value.trim() || 'pk_test_xxxxxxxxxxxxxxxx';
+ if(!key.startsWith('pk_')){alert('Enter valid Paystack public key starting with pk_');return;}
+ let handler=PaystackPop.setup({
+  key:key,
+  email:'test@classicresearch.com',
+  amount:500000,
+  currency:'NGN',
+  ref:'TEST-'+Math.floor(Math.random()*1000000),
+  metadata:{custom_fields:[{display_name:"Test",variable_name:"test",value:"Admin test"}]},
+  callback:function(response){alert('Test payment success! Ref: '+response.reference);},
+  onClose:function(){alert('Popup closed');}
+ });
+ handler.openIframe();
+}
+loadSettings();
+setInterval(loadAll,5000);
+if(localStorage.getItem('adminLoggedIn')==='true'){loadAll();}
+</script>
+</body>
+</html>
